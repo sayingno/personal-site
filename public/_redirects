@@ -1,0 +1,2 @@
+# SPA fallback. Keeps /admin, /blog, /post/1 etc. working on Cloudflare Pages.
+/* /index.html 200

@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Jiawei Fu's personal site for writing, markets, trading ideas, and recaps." />
+  <title>Jiawei Fu</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-2: #f3f3f3;
+      --text: #1a1a1a;
+      --muted: #737373;
+      --border: #e6e6e6;
+      --shadow: rgba(0, 0, 0, 0.07);
+      --accent: #111111;
+      --danger: #b42318;
+      --blog: #e8f4f8;
+      --blog-text: #1a6080;
+      --trade: #eaf5ea;
+      --trade-text: #1a6030;
+      --recap: #fff3e5;
+      --recap-text: #805020;
+      --font-serif: Georgia, Cambria, "Times New Roman", serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-serif);
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+    }
+
+    .header-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      padding: 0 24px;
+    }
+
+    .brand {
+      font-family: var(--font-sans);
+      font-weight: 750;
+      letter-spacing: -0.03em;
+      font-size: 18px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    nav button, .ghost-btn, .primary-btn, .danger-btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: 0.14s ease;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    nav button {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    nav button:hover, nav button.active {
+      background: var(--text);
+      color: #fff;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid var(--accent);
+    }
+
+    .ghost-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .danger-btn {
+      background: #fff;
+      color: var(--danger);
+      border: 1px solid #f3c6c1;
+    }
+
+    .primary-btn:hover, .ghost-btn:hover, .danger-btn:hover, .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 44px 24px 90px;
+    }
+
+    .hero {
+      padding: 24px 0 34px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-sans);
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(36px, 7vw, 66px);
+      max-width: 760px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 640px;
+      margin: 18px 0 0;
+      font-size: 18px;
+    }
+
+    .page-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .page-title h2 { font-size: 27px; }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      cursor: pointer;
+      transition: 0.14s ease;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-family: var(--font-sans);
+      font-size: 12px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 10px;
+    }
+
+    .tag-blog { background: var(--blog); color: var(--blog-text); }
+    .tag-trade { background: var(--trade); color: var(--trade-text); }
+    .tag-recap { background: var(--recap); color: var(--recap-text); }
+
+    .card h3 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .empty, .status {
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      color: var(--muted);
+      background: var(--surface);
+      font-family: var(--font-sans);
+    }
+
+    .status.error {
+      color: var(--danger);
+      border-color: #f3c6c1;
+      background: #fff7f6;
+    }
+
+    .post-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 26px;
+    }
+
+    .post-header h1 {
+      font-size: clamp(34px, 5vw, 54px);
+      margin-top: 8px;
+    }
+
+    .post-actions, .modal-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .prose {
+      max-width: 760px;
+    }
+
+    .prose h1, .prose h2, .prose h3 {
+      margin: 1.4em 0 0.45em;
+    }
+
+    .prose p, .prose ul, .prose ol, .prose blockquote, .prose pre {
+      margin: 0 0 1em;
+    }
+
+    .prose a { color: var(--text); text-decoration-thickness: 1px; }
+    .prose code { font-family: var(--font-mono); background: var(--surface-2); padding: 2px 5px; border-radius: 5px; }
+    .prose pre { background: #111; color: #f4f4f4; padding: 16px; border-radius: 12px; overflow-x: auto; }
+    .prose blockquote { border-left: 3px solid var(--border); padding-left: 16px; color: var(--muted); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(0, 0, 0, 0.32);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: min(760px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      background: var(--surface);
+      border-radius: 18px;
+      box-shadow: 0 22px 70px rgba(0,0,0,0.22);
+      border: 1px solid var(--border);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-sans);
+      font-weight: 750;
+    }
+
+    .modal-body { padding: 20px; }
+
+    .close-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 24px;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-sans);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 230px;
+      resize: vertical;
+      font-family: var(--font-mono);
+      line-height: 1.55;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .full { grid-column: 1 / -1; }
+
+    .footer-note {
+      border-top: 1px solid var(--border);
+      margin-top: 50px;
+      padding-top: 18px;
+      color: var(--muted);
+      font-family: var(--font-sans);
+      font-size: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .header-inner {
+        height: auto;
+        padding: 14px 18px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .header-actions { margin-left: 0; }
+      main { padding: 30px 18px 70px; }
+      .form-grid { grid-template-columns: 1fr; }
+      nav { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand" id="brand">Jiawei Fu</div>
+        <nav aria-label="Main navigation">
+          <button data-route="/" id="nav-home">Home</button>
+          <button data-route="/blog" id="nav-blog">Blog</button>
+          <button data-route="/trade" id="nav-trade">Trade Ideas</button>
+          <button data-route="/recaps" id="nav-recaps">Recaps</button>
+          <button data-route="/about" id="nav-about">About</button>
+        </nav>
+        <div class="header-actions">
+          <button class="primary-btn" id="new-btn" hidden>+ New</button>
+          <button class="ghost-btn" id="auth-btn">Admin</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main"></main>
+  </div>
+
+  <div class="modal-backdrop" id="login-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
+      <div class="modal-header">
+        <span id="login-title">Admin Login</span>
+        <button class="close-btn" data-close="login-modal" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="login-form">
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="current-password" required />
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="primary-btn">Log in</button>
+            <button type="button" class="ghost-btn" data-close="login-modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="editor-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+      <div class="modal-header">
+        <span id="editor-title">New Post</span>
+        <button class="close-btn" data-close="editor-modal" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="editor-form">
+          <input type="hidden" id="post-id" />
+          <div class="form-grid">
+            <div class="field">
+              <label for="post-type">Type</label>
+              <select id="post-type">
+                <option value="blog">Blog Post</option>
+                <option value="trade">Trade Idea</option>
+                <option value="recap">Recap</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="post-title">Title</label>
+              <input id="post-title" required />
+            </div>
+            <div class="field">
+              <label for="post-ticker">Ticker / Market</label>
+              <input id="post-ticker" placeholder="FDAX, ES, AAPL..." />
+            </div>
+            <div class="field">
+              <label for="post-direction">Direction</label>
+              <select id="post-direction">
+                <option value="">None</option>
+                <option value="Long">Long</option>
+                <option value="Short">Short</option>
+                <option value="Neutral">Neutral</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="post-excerpt">Excerpt</label>
+              <input id="post-excerpt" placeholder="Short summary shown on cards" />
+            </div>
+            <div class="field full">
+              <label for="post-content">Content — Markdown supported</label>
+              <textarea id="post-content" required></textarea>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="primary-btn">Save</button>
+            <button type="button" class="ghost-btn" data-close="editor-modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="about-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="about-editor-title">
+      <div class="modal-header">
+        <span id="about-editor-title">Edit About</span>
+        <button class="close-btn" data-close="about-modal" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="about-form">
+          <div class="field">
+            <label for="about-content">About Content — Markdown supported</label>
+            <textarea id="about-content" required></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="primary-btn">Save</button>
+            <button type="button" class="ghost-btn" data-close="about-modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      admin: false,
+      posts: [],
+      currentPost: null,
+      about: "",
+      loading: false,
+    };
+
+    const main = document.getElementById("main");
+    const newBtn = document.getElementById("new-btn");
+    const authBtn = document.getElementById("auth-btn");
+
+    const typeLabels = {
+      blog: "Blog",
+      trade: "Trade Idea",
+      recap: "Recap",
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function markdown(content) {
+      if (window.marked) {
+        return window.marked.parse(content || "");
+      }
+      return escapeHtml(content || "").replace(/\n/g, "<br>");
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+
+    function getRoute() {
+      const path = window.location.pathname.replace(/\/+$/, "") || "/";
+      if (path === "/admin") return { name: "admin" };
+      if (path === "/blog") return { name: "blog" };
+      if (path === "/trade") return { name: "trade" };
+      if (path === "/recaps") return { name: "recaps" };
+      if (path === "/about") return { name: "about" };
+      if (path.startsWith("/post/")) return { name: "post", id: path.split("/")[2] };
+      return { name: "home" };
+    }
+
+    function go(path) {
+      history.pushState({}, "", path);
+      render();
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        headers: { "content-type": "application/json", ...(options.headers || {}) },
+        ...options,
+      });
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        throw new Error(data?.error || `Request failed: ${response.status}`);
+      }
+
+      return data;
+    }
+
+    function setStatus(message, error = false) {
+      main.innerHTML = `<div class="status ${error ? "error" : ""}">${escapeHtml(message)}</div>`;
+    }
+
+    function updateAdminUi() {
+      newBtn.hidden = !state.admin;
+      authBtn.textContent = state.admin ? "Log out" : "Admin";
+    }
+
+    async function loadAdmin() {
+      try {
+        const me = await api("/api/me");
+        state.admin = !!me.admin;
+      } catch {
+        state.admin = false;
+      }
+      updateAdminUi();
+    }
+
+    async function loadPosts(type) {
+      const url = type ? `/api/posts?type=${encodeURIComponent(type)}` : "/api/posts";
+      state.posts = await api(url);
+      return state.posts;
+    }
+
+    async function loadPost(id) {
+      state.currentPost = await api(`/api/posts/${encodeURIComponent(id)}`);
+      return state.currentPost;
+    }
+
+    async function loadAbout() {
+      const data = await api("/api/about");
+      state.about = data.content || "";
+      return state.about;
+    }
+
+    function activateNav(routeName) {
+      const map = {
+        home: "nav-home",
+        blog: "nav-blog",
+        trade: "nav-trade",
+        recaps: "nav-recaps",
+        about: "nav-about",
+      };
+
+      for (const button of document.querySelectorAll("nav button")) {
+        button.classList.remove("active");
+      }
+
+      const id = map[routeName];
+      if (id) document.getElementById(id)?.classList.add("active");
+    }
+
+    function postCard(post) {
+      const type = escapeHtml(post.type || "blog");
+      const label = escapeHtml(typeLabels[post.type] || post.type || "Post");
+      const title = escapeHtml(post.title);
+      const excerpt = escapeHtml(post.excerpt || firstSentence(post.content) || "Open note");
+      const ticker = post.ticker ? `<span>${escapeHtml(post.ticker)}</span>` : "";
+      const direction = post.direction ? `<span>${escapeHtml(post.direction)}</span>` : "";
+
+      return `
+        <article class="card" data-post-id="${post.id}">
+          <div class="meta-row">
+            <span class="tag tag-${type}">${label}</span>
+            ${ticker}
+            ${direction}
+            <span>${escapeHtml(formatDate(post.created_at))}</span>
+          </div>
+          <h3>${title}</h3>
+          <p>${excerpt}</p>
+        </article>
+      `;
+    }
+
+    function firstSentence(content) {
+      const stripped = String(content || "")
+        .replace(/[#>*_`\-]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      return stripped.length > 160 ? `${stripped.slice(0, 160)}...` : stripped;
+    }
+
+    function postList(posts) {
+      if (!posts.length) {
+        return `<div class="empty">No posts yet. Log in as admin and create your first one.</div>`;
+      }
+      return `<div class="grid">${posts.map(postCard).join("")}</div>`;
+    }
+
+    async function renderHome() {
+      activateNav("home");
+      setStatus("Loading...");
+      const posts = await loadPosts();
+      const latest = posts.slice(0, 6);
+
+      main.innerHTML = `
+        <section class="hero">
+          <div class="eyebrow">Personal site</div>
+          <h1>Notes on markets, trading research, and ideas.</h1>
+          <p>This is my workspace for blog posts, trade ideas, recaps, and research notes. Admin editing is available at <strong>/admin</strong>.</p>
+        </section>
+        <section>
+          <div class="page-title">
+            <h2>Latest</h2>
+            ${state.admin ? `<button class="primary-btn" id="inline-new">+ New</button>` : ""}
+          </div>
+          ${postList(latest)}
+        </section>
+        <div class="footer-note">Powered by Cloudflare Pages, Pages Functions, and D1.</div>
+      `;
+
+      document.getElementById("inline-new")?.addEventListener("click", () => openEditor());
+      attachPostCardEvents();
+    }
+
+    async function renderList(routeName, type, title, intro) {
+      activateNav(routeName);
+      setStatus("Loading...");
+      const posts = await loadPosts(type);
+
+      main.innerHTML = `
+        <section>
+          <div class="page-title">
+            <div>
+              <div class="eyebrow">${escapeHtml(intro)}</div>
+              <h2>${escapeHtml(title)}</h2>
+            </div>
+            ${state.admin ? `<button class="primary-btn" id="inline-new">+ New</button>` : ""}
+          </div>
+          ${postList(posts)}
+        </section>
+      `;
+
+      document.getElementById("inline-new")?.addEventListener("click", () => openEditor({ type }));
+      attachPostCardEvents();
+    }
+
+    async function renderPost(id) {
+      activateNav("");
+      setStatus("Loading...");
+      const post = await loadPost(id);
+      const label = typeLabels[post.type] || post.type || "Post";
+
+      main.innerHTML = `
+        <article>
+          <div class="post-header">
+            <div class="meta-row">
+              <span class="tag tag-${escapeHtml(post.type)}">${escapeHtml(label)}</span>
+              ${post.ticker ? `<span>${escapeHtml(post.ticker)}</span>` : ""}
+              ${post.direction ? `<span>${escapeHtml(post.direction)}</span>` : ""}
+              <span>${escapeHtml(formatDate(post.created_at))}</span>
+            </div>
+            <h1>${escapeHtml(post.title)}</h1>
+            ${state.admin ? `
+              <div class="post-actions" style="margin-top:18px">
+                <button class="ghost-btn" id="edit-post">Edit</button>
+                <button class="danger-btn" id="delete-post">Delete</button>
+              </div>
+            ` : ""}
+          </div>
+          <div class="prose">${markdown(post.content)}</div>
+        </article>
+      `;
+
+      document.getElementById("edit-post")?.addEventListener("click", () => openEditor(post));
+      document.getElementById("delete-post")?.addEventListener("click", () => deletePost(post.id));
+    }
+
+    async function renderAbout() {
+      activateNav("about");
+      setStatus("Loading...");
+      const about = await loadAbout();
+
+      main.innerHTML = `
+        <section>
+          <div class="page-title">
+            <h2>About</h2>
+            ${state.admin ? `<button class="ghost-btn" id="edit-about">Edit</button>` : ""}
+          </div>
+          <div class="prose">${markdown(about)}</div>
+        </section>
+      `;
+
+      document.getElementById("edit-about")?.addEventListener("click", openAboutEditor);
+    }
+
+    async function renderAdmin() {
+      activateNav("");
+      await loadAdmin();
+      if (!state.admin) {
+        main.innerHTML = `
+          <section class="hero">
+            <div class="eyebrow">Admin</div>
+            <h1>Log in to edit your site.</h1>
+            <p>Use the ADMIN_PASSWORD you added in Cloudflare Pages environment variables.</p>
+          </section>
+          <button class="primary-btn" id="admin-login-main">Open admin login</button>
+        `;
+        document.getElementById("admin-login-main").addEventListener("click", () => openModal("login-modal"));
+        openModal("login-modal");
+        return;
+      }
+
+      const posts = await loadPosts();
+      main.innerHTML = `
+        <section>
+          <div class="page-title">
+            <div>
+              <div class="eyebrow">Admin</div>
+              <h2>Manage content</h2>
+            </div>
+            <button class="primary-btn" id="admin-new">+ New</button>
+          </div>
+          ${postList(posts)}
+        </section>
+      `;
+      document.getElementById("admin-new").addEventListener("click", () => openEditor());
+      attachPostCardEvents();
+    }
+
+    async function render() {
+      const route = getRoute();
+      updateAdminUi();
+
+      try {
+        if (route.name === "home") return await renderHome();
+        if (route.name === "blog") return await renderList("blog", "blog", "Blog", "Writing");
+        if (route.name === "trade") return await renderList("trade", "trade", "Trade Ideas", "Research");
+        if (route.name === "recaps") return await renderList("recaps", "recap", "Recaps", "Review");
+        if (route.name === "about") return await renderAbout();
+        if (route.name === "admin") return await renderAdmin();
+        if (route.name === "post") return await renderPost(route.id);
+      } catch (error) {
+        setStatus(error.message || String(error), true);
+      }
+    }
+
+    function attachPostCardEvents() {
+      document.querySelectorAll("[data-post-id]").forEach((card) => {
+        card.addEventListener("click", () => go(`/post/${card.dataset.postId}`));
+      });
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add("open");
+      if (id === "login-modal") setTimeout(() => document.getElementById("password")?.focus(), 0);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    function openEditor(post = {}) {
+      if (!state.admin) return openModal("login-modal");
+
+      document.getElementById("editor-title").textContent = post.id ? "Edit Post" : "New Post";
+      document.getElementById("post-id").value = post.id || "";
+      document.getElementById("post-type").value = post.type || "blog";
+      document.getElementById("post-title").value = post.title || "";
+      document.getElementById("post-ticker").value = post.ticker || "";
+      document.getElementById("post-direction").value = post.direction || "";
+      document.getElementById("post-excerpt").value = post.excerpt || "";
+      document.getElementById("post-content").value = post.content || "";
+      openModal("editor-modal");
+    }
+
+    async function openAboutEditor() {
+      if (!state.admin) return openModal("login-modal");
+      if (!state.about) await loadAbout();
+      document.getElementById("about-content").value = state.about;
+      openModal("about-modal");
+    }
+
+    async function deletePost(id) {
+      if (!confirm("Delete this post?")) return;
+      try {
+        await api(`/api/posts/${encodeURIComponent(id)}`, { method: "DELETE" });
+        go("/");
+      } catch (error) {
+        alert(error.message || String(error));
+      }
+    }
+
+    document.getElementById("brand").addEventListener("click", () => go("/"));
+
+    document.querySelectorAll("nav button[data-route]").forEach((button) => {
+      button.addEventListener("click", () => go(button.dataset.route));
+    });
+
+    document.querySelectorAll("[data-close]").forEach((button) => {
+      button.addEventListener("click", () => closeModal(button.dataset.close));
+    });
+
+    document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
+      backdrop.addEventListener("click", (event) => {
+        if (event.target === backdrop) closeModal(backdrop.id);
+      });
+    });
+
+    newBtn.addEventListener("click", () => openEditor());
+
+    authBtn.addEventListener("click", async () => {
+      if (!state.admin) return openModal("login-modal");
+      try {
+        await api("/api/logout", { method: "POST", body: "{}" });
+        state.admin = false;
+        updateAdminUi();
+        render();
+      } catch (error) {
+        alert(error.message || String(error));
+      }
+    });
+
+    document.getElementById("login-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/api/login", {
+          method: "POST",
+          body: JSON.stringify({ password: document.getElementById("password").value }),
+        });
+        document.getElementById("password").value = "";
+        state.admin = true;
+        updateAdminUi();
+        closeModal("login-modal");
+        render();
+      } catch (error) {
+        alert(error.message || String(error));
+      }
+    });
+
+    document.getElementById("editor-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const id = document.getElementById("post-id").value;
+      const payload = {
+        type: document.getElementById("post-type").value,
+        title: document.getElementById("post-title").value,
+        ticker: document.getElementById("post-ticker").value,
+        direction: document.getElementById("post-direction").value,
+        excerpt: document.getElementById("post-excerpt").value,
+        content: document.getElementById("post-content").value,
+      };
+
+      try {
+        if (id) {
+          await api(`/api/posts/${encodeURIComponent(id)}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+          });
+        } else {
+          await api("/api/posts", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+        }
+        closeModal("editor-modal");
+        render();
+      } catch (error) {
+        alert(error.message || String(error));
+      }
+    });
+
+    document.getElementById("about-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/api/about", {
+          method: "PUT",
+          body: JSON.stringify({ content: document.getElementById("about-content").value }),
+        });
+        state.about = document.getElementById("about-content").value;
+        closeModal("about-modal");
+        renderAbout();
+      } catch (error) {
+        alert(error.message || String(error));
+      }
+    });
+
+    window.addEventListener("popstate", render);
+
+    loadAdmin().then(render);
+  </script>
+</body>
+</html>
