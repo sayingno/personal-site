@@ -23,6 +23,8 @@
       --trade-text: #1a6030;
       --recap: #fff3e5;
       --recap-text: #805020;
+      --setup: #efeafd;
+      --setup-text: #53328a;
       --font-serif: Georgia, Cambria, "Times New Roman", serif;
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
       --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -216,6 +218,7 @@
     .tag-blog { background: var(--blog); color: var(--blog-text); }
     .tag-trade { background: var(--trade); color: var(--trade-text); }
     .tag-recap { background: var(--recap); color: var(--recap-text); }
+    .tag-setup { background: var(--setup); color: var(--setup-text); }
 
     .card h3 {
       font-size: 20px;
@@ -300,6 +303,12 @@
       border: 1px solid var(--border);
     }
 
+    .modal.editor-wide {
+      width: min(1180px, 100%);
+      max-height: 94vh;
+      border-radius: 14px;
+    }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -351,6 +360,118 @@
       line-height: 1.55;
     }
 
+    .writing-mode .modal-body {
+      background: #f6f5f1;
+      padding: 0;
+    }
+
+    .editor-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 14px 18px 0;
+      font-family: var(--font-sans);
+    }
+
+    .editor-tab {
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: 10px 10px 0 0;
+      background: #fff;
+      padding: 9px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .editor-tab.active {
+      color: var(--text);
+    }
+
+    .format-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      font-family: var(--font-sans);
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-right: 8px;
+      border-right: 1px solid var(--border);
+    }
+
+    .toolbar-group:last-child { border-right: 0; }
+
+    .format-toolbar select {
+      width: auto;
+      min-width: 86px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .tool-btn {
+      width: auto;
+      min-width: 34px;
+      min-height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      padding: 7px 10px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tool-btn:hover {
+      border-color: var(--text);
+    }
+
+    .editor-paper {
+      max-width: 980px;
+      margin: 20px auto;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: clamp(26px, 6vw, 76px);
+    }
+
+    .editor-paper #post-title {
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0 0 22px;
+      font-family: var(--font-sans);
+      font-size: clamp(34px, 5vw, 66px);
+      font-weight: 780;
+      letter-spacing: -0.05em;
+      line-height: 1.06;
+    }
+
+    .editor-paper #post-content {
+      min-height: 56vh;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      font-family: var(--font-serif);
+      font-size: 21px;
+      line-height: 1.85;
+      resize: vertical;
+    }
+
+    .field.hidden-field { display: none; }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -381,6 +502,10 @@
       main { padding: 30px 18px 70px; }
       .form-grid { grid-template-columns: 1fr; }
       nav { width: 100%; }
+      .format-toolbar { overflow-x: auto; flex-wrap: nowrap; }
+      .editor-paper { margin: 12px; padding: 22px 18px; }
+      .editor-paper #post-title { font-size: 34px; }
+      .editor-paper #post-content { font-size: 18px; }
     }
   </style>
 </head>
@@ -394,6 +519,7 @@
           <button data-route="/blog" id="nav-blog">Blog</button>
           <button data-route="/trade" id="nav-trade">Trade Ideas</button>
           <button data-route="/recaps" id="nav-recaps">Recaps</button>
+          <button data-route="/setup-study" id="nav-setup">Setup Study</button>
           <button data-route="/about" id="nav-about">About</button>
         </nav>
         <div class="header-actions">
@@ -410,7 +536,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
       <div class="modal-header">
         <span id="login-title">Admin Login</span>
-        <button class="close-btn" data-close="login-modal" aria-label="Close">×</button>
+        <button class="close-btn" data-close="login-modal" aria-label="Close">x</button>
       </div>
       <div class="modal-body">
         <form id="login-form">
@@ -428,10 +554,10 @@
   </div>
 
   <div class="modal-backdrop" id="editor-modal">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+    <div class="modal" id="editor-shell" role="dialog" aria-modal="true" aria-labelledby="editor-title">
       <div class="modal-header">
         <span id="editor-title">New Post</span>
-        <button class="close-btn" data-close="editor-modal" aria-label="Close">×</button>
+        <button class="close-btn" data-close="editor-modal" aria-label="Close">x</button>
       </div>
       <div class="modal-body">
         <form id="editor-form">
@@ -443,17 +569,18 @@
                 <option value="blog">Blog Post</option>
                 <option value="trade">Trade Idea</option>
                 <option value="recap">Recap</option>
+                <option value="setup">Setup Study</option>
               </select>
             </div>
-            <div class="field">
+            <div class="field" id="title-field">
               <label for="post-title">Title</label>
               <input id="post-title" required />
             </div>
-            <div class="field">
+            <div class="field" id="ticker-field">
               <label for="post-ticker">Ticker / Market</label>
               <input id="post-ticker" placeholder="FDAX, ES, AAPL..." />
             </div>
-            <div class="field">
+            <div class="field" id="direction-field">
               <label for="post-direction">Direction</label>
               <select id="post-direction">
                 <option value="">None</option>
@@ -462,12 +589,75 @@
                 <option value="Neutral">Neutral</option>
               </select>
             </div>
-            <div class="field full">
+            <div class="field full" id="excerpt-field">
               <label for="post-excerpt">Excerpt</label>
               <input id="post-excerpt" placeholder="Short summary shown on cards" />
             </div>
+            <div class="field full" id="format-toolbar-field" hidden>
+              <div class="editor-tabs">
+                <span class="editor-tab active">Title</span>
+                <span class="editor-tab">Body</span>
+                <span class="editor-tab">Preview</span>
+              </div>
+              <div class="format-toolbar" aria-label="Writing format toolbar">
+                <div class="toolbar-group">
+                  <select id="font-family-tool" aria-label="Font family">
+                    <option value="Georgia, Cambria, 'Times New Roman', serif">Georgia</option>
+                    <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif">System Sans</option>
+                    <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                    <option value="Arial, Helvetica, sans-serif">Arial</option>
+                    <option value="'Courier New', Courier, monospace">Courier New</option>
+                    <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                    <option value="Garamond, Georgia, serif">Garamond</option>
+                  </select>
+                  <select id="font-size-tool" aria-label="Font size">
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                    <option value="22" selected>22</option>
+                    <option value="24">24</option>
+                    <option value="28">28</option>
+                    <option value="32">32</option>
+                    <option value="40">40</option>
+                    <option value="48">48</option>
+                  </select>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn" data-format="bold">B</button>
+                  <button type="button" class="tool-btn" data-format="italic"><em>I</em></button>
+                  <button type="button" class="tool-btn" data-format="underline"><u>U</u></button>
+                  <button type="button" class="tool-btn" data-format="strike"><s>S</s></button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn" data-format="h1">H1</button>
+                  <button type="button" class="tool-btn" data-format="h2">H2</button>
+                  <button type="button" class="tool-btn" data-format="h3">H3</button>
+                  <button type="button" class="tool-btn" data-format="quote">Quote</button>
+                  <button type="button" class="tool-btn" data-format="code">Code</button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn" data-format="left">Left</button>
+                  <button type="button" class="tool-btn" data-format="center">Center</button>
+                  <button type="button" class="tool-btn" data-format="right">Right</button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn" data-format="bullet">Bullets</button>
+                  <button type="button" class="tool-btn" data-format="number">Numbers</button>
+                  <button type="button" class="tool-btn" data-format="checklist">Checklist</button>
+                  <button type="button" class="tool-btn" data-format="table">Table</button>
+                  <button type="button" class="tool-btn" data-format="rule">Rule</button>
+                  <button type="button" class="tool-btn" data-format="link">Link</button>
+                </div>
+                <div class="toolbar-group">
+                  <button type="button" class="tool-btn" data-format="font">Apply Font</button>
+                  <button type="button" class="tool-btn" data-format="color">Text Color</button>
+                  <button type="button" class="tool-btn" data-format="highlight">Highlight</button>
+                </div>
+              </div>
+            </div>
             <div class="field full">
-              <label for="post-content">Content — Markdown supported</label>
+              <label for="post-content">Content - Markdown supported</label>
               <textarea id="post-content" required></textarea>
             </div>
           </div>
@@ -484,12 +674,12 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="about-editor-title">
       <div class="modal-header">
         <span id="about-editor-title">Edit About</span>
-        <button class="close-btn" data-close="about-modal" aria-label="Close">×</button>
+        <button class="close-btn" data-close="about-modal" aria-label="Close">x</button>
       </div>
       <div class="modal-body">
         <form id="about-form">
           <div class="field">
-            <label for="about-content">About Content — Markdown supported</label>
+            <label for="about-content">About Content - Markdown supported</label>
             <textarea id="about-content" required></textarea>
           </div>
           <div class="modal-actions">
@@ -518,6 +708,7 @@
       blog: "Blog",
       trade: "Trade Idea",
       recap: "Recap",
+      setup: "Setup Study",
     };
 
     function escapeHtml(value) {
@@ -553,6 +744,7 @@
       if (path === "/blog") return { name: "blog" };
       if (path === "/trade") return { name: "trade" };
       if (path === "/recaps") return { name: "recaps" };
+      if (path === "/setup-study") return { name: "setup" };
       if (path === "/about") return { name: "about" };
       if (path.startsWith("/post/")) return { name: "post", id: path.split("/")[2] };
       return { name: "home" };
@@ -564,6 +756,10 @@
     }
 
     async function api(path, options = {}) {
+      if (window.location.protocol === "file:") {
+        throw new Error("This page is opened as a local file, so it cannot reach /api. Use your live Cloudflare site or run a local dev server instead.");
+      }
+
       const response = await fetch(path, {
         headers: { "content-type": "application/json", ...(options.headers || {}) },
         ...options,
@@ -621,6 +817,7 @@
         blog: "nav-blog",
         trade: "nav-trade",
         recaps: "nav-recaps",
+        setup: "nav-setup",
         about: "nav-about",
       };
 
@@ -679,7 +876,7 @@
         <section class="hero">
           <div class="eyebrow">Personal site</div>
           <h1>Notes on markets, trading research, and ideas.</h1>
-          <p>This is my workspace for blog posts, trade ideas, recaps, and research notes. Admin editing is available at <strong>/admin</strong>.</p>
+          <p>This is my workspace for blog posts, trade ideas, recaps, setup studies, and research notes. Admin editing is available at <strong>/admin</strong>.</p>
         </section>
         <section>
           <div class="page-title">
@@ -809,6 +1006,7 @@
         if (route.name === "blog") return await renderList("blog", "blog", "Blog", "Writing");
         if (route.name === "trade") return await renderList("trade", "trade", "Trade Ideas", "Research");
         if (route.name === "recaps") return await renderList("recaps", "recap", "Recaps", "Review");
+        if (route.name === "setup") return await renderList("setup", "setup", "Setup Study", "Projects");
         if (route.name === "about") return await renderAbout();
         if (route.name === "admin") return await renderAdmin();
         if (route.name === "post") return await renderPost(route.id);
@@ -832,6 +1030,27 @@
       document.getElementById(id).classList.remove("open");
     }
 
+    function isWritingType(type) {
+      return type === "blog" || type === "setup";
+    }
+
+    function updateEditorMode() {
+      const type = document.getElementById("post-type").value;
+      const writing = isWritingType(type);
+      const editorShell = document.getElementById("editor-shell");
+      const editorForm = document.getElementById("editor-form");
+
+      editorShell.classList.toggle("editor-wide", writing);
+      editorForm.classList.toggle("writing-mode", writing);
+      document.getElementById("ticker-field").classList.toggle("hidden-field", writing);
+      document.getElementById("direction-field").classList.toggle("hidden-field", writing);
+      document.getElementById("excerpt-field").classList.toggle("hidden-field", writing);
+      document.getElementById("format-toolbar-field").hidden = !writing;
+      document.getElementById("title-field").classList.toggle("full", writing);
+      document.getElementById("post-title").placeholder = writing ? "Title" : "";
+      document.getElementById("post-content").placeholder = writing ? "Start writing here..." : "";
+    }
+
     function openEditor(post = {}) {
       if (!state.admin) return openModal("login-modal");
 
@@ -843,6 +1062,7 @@
       document.getElementById("post-direction").value = post.direction || "";
       document.getElementById("post-excerpt").value = post.excerpt || "";
       document.getElementById("post-content").value = post.content || "";
+      updateEditorMode();
       openModal("editor-modal");
     }
 
@@ -862,6 +1082,76 @@
         alert(error.message || String(error));
       }
     }
+
+    function selectedContent() {
+      const textarea = document.getElementById("post-content");
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      return {
+        textarea,
+        start,
+        end,
+        selected: textarea.value.slice(start, end),
+      };
+    }
+
+    function replaceSelection(text) {
+      const { textarea, start, end } = selectedContent();
+      textarea.setRangeText(text, start, end, "end");
+      textarea.focus();
+    }
+
+    function linePrefix(prefix) {
+      const { selected } = selectedContent();
+      const base = selected || "Write here";
+      replaceSelection(base.split("\n").map((line) => `${prefix}${line}`).join("\n"));
+    }
+
+    function wrapSelection(before, after = before, fallback = "text") {
+      const { selected } = selectedContent();
+      replaceSelection(`${before}${selected || fallback}${after}`);
+    }
+
+    function applyFormat(format) {
+      const family = document.getElementById("font-family-tool").value;
+      const size = document.getElementById("font-size-tool").value;
+
+      const formats = {
+        bold: () => wrapSelection("**", "**", "bold text"),
+        italic: () => wrapSelection("*", "*", "italic text"),
+        underline: () => wrapSelection("<u>", "</u>", "underlined text"),
+        strike: () => wrapSelection("~~", "~~", "struck text"),
+        h1: () => linePrefix("# "),
+        h2: () => linePrefix("## "),
+        h3: () => linePrefix("### "),
+        quote: () => linePrefix("> "),
+        code: () => wrapSelection("`", "`", "code"),
+        left: () => wrapSelection('<div style="text-align:left">\n', "\n</div>", "Left aligned text"),
+        center: () => wrapSelection('<div style="text-align:center">\n', "\n</div>", "Centered text"),
+        right: () => wrapSelection('<div style="text-align:right">\n', "\n</div>", "Right aligned text"),
+        bullet: () => linePrefix("- "),
+        number: () => {
+          const { selected } = selectedContent();
+          const lines = (selected || "First item\nSecond item").split("\n");
+          replaceSelection(lines.map((line, index) => `${index + 1}. ${line}`).join("\n"));
+        },
+        checklist: () => linePrefix("- [ ] "),
+        table: () => replaceSelection("| Column A | Column B |\n| --- | --- |\n| Detail | Detail |"),
+        rule: () => replaceSelection("\n---\n"),
+        link: () => wrapSelection("[", "](https://example.com)", "link text"),
+        font: () => wrapSelection(`<span style="font-family:${family}; font-size:${size}px">`, "</span>", "formatted text"),
+        color: () => wrapSelection('<span style="color:#1a6080">', "</span>", "colored text"),
+        highlight: () => wrapSelection('<mark style="background:#fff3b0">', "</mark>", "highlighted text"),
+      };
+
+      formats[format]?.();
+    }
+
+    document.getElementById("post-type").addEventListener("change", updateEditorMode);
+
+    document.querySelectorAll("[data-format]").forEach((button) => {
+      button.addEventListener("click", () => applyFormat(button.dataset.format));
+    });
 
     document.getElementById("brand").addEventListener("click", () => go("/"));
 
@@ -913,12 +1203,14 @@
     document.getElementById("editor-form").addEventListener("submit", async (event) => {
       event.preventDefault();
       const id = document.getElementById("post-id").value;
+      const selectedType = document.getElementById("post-type").value;
+      const writingType = isWritingType(selectedType);
       const payload = {
-        type: document.getElementById("post-type").value,
+        type: selectedType,
         title: document.getElementById("post-title").value,
-        ticker: document.getElementById("post-ticker").value,
-        direction: document.getElementById("post-direction").value,
-        excerpt: document.getElementById("post-excerpt").value,
+        ticker: writingType ? "" : document.getElementById("post-ticker").value,
+        direction: writingType ? "" : document.getElementById("post-direction").value,
+        excerpt: writingType ? "" : document.getElementById("post-excerpt").value,
         content: document.getElementById("post-content").value,
       };
 
